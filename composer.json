@@ -1,0 +1,21 @@
+{
+    "name": "tmukherjee13/yii2-reverse-migration",
+    "description": "Generate working migration classes from existing Database",
+    "type": "yii2-extension",
+    "keywords": ["yii2","database","migration"],
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Tarun Mukherjee",
+            "email": "tmukherjee13@gmail.com"
+        }
+    ],
+    "require": {
+        "yiisoft/yii2": "*"
+    },
+    "autoload": {
+        "psr-4": {
+            "tmukherjee13\\migration\\": ""
+        }
+    }
+}
