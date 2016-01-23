@@ -17,5 +17,11 @@
         "psr-4": {
             "tmukherjee13\\migration\\": ""
         }
+    },
+    "repositories":[
+    {
+        "type": "git",
+        "url": "https://github.com/tmukherjee13/yii2-reverse-migration.git"
     }
+]
 }
