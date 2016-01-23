@@ -29,3 +29,4 @@ Once the extension is installed, simply use it in your code by  :
 
 ```php
 <?= \tmukherjee13\migration\AutoloadExample::widget(); ?>```
+# yii2-reverse-migration
