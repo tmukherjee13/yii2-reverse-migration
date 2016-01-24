@@ -26,7 +26,7 @@ class MigrationController extends Controller
     /**
      * @var string a migration path
      */
-    protected $migrationPath = "@app/testmigrations";
+    protected $migrationPath = "@app/migrations";
 
     public $templateFile = "@tmukherjee13/migration";
     
@@ -245,20 +245,10 @@ SQL;
                     $up = "";
                     $down = "";
                     $name = $this->getFileName();
-                    
-                    // $result = "<?php \n\n";
-                    // $result.= "use yii\db\Schema;\n";
-                    // $result.= "use yii\db\Migration;\n\n";
-                    // $result.= "class {$name} extends Migration\n{\n\n";
-                    
-                    // $result.= "\tpublic function safeUp()\n\t\t{\n";
-                    // $result.= "\t\t\t" . '$this->execute("SET foreign_key_checks = 0;");' . "\n";
-
 
                     $up.= '$this->execute("SET foreign_key_checks = 0;");' . "\n";
                     
                     // Create table
-                    // $result.= "\t\t\t" . '$this->createTable(\'' . $table->name . '\', array(' . "\n";
                     $up.= "\t\t" . '$this->createTable(\'' . $table->name . '\', array(' . "\n";
                     
                     foreach ($table->columns as $col) {
@@ -296,14 +286,9 @@ SQL;
                     $up.= $addForeignKeys;
                     
                     $up.= "\t\t" . '$this->execute("SET foreign_key_checks = 1;");' . "\n";
-                    // $result.= "\t\t}\n\n";
-                    // $result.= "\tpublic function safeDown()\n\t\t{\n";
                     $down.=  $dropForeignKeys . "\n";
                     $down.= "\t\t" . '$this->dropTable(\'' . $table->name . '\');' . "\n";
                     
-                    // $result.= "\t\t}\n}";
-
-                    // $this->prepareFile($result). "\n\n";
                     $this->prepareFile(['up'=>$up,'down'=>$down]). "\n\n";
             }
 
@@ -371,7 +356,7 @@ SQL;
      * @param string $args the schema name
      * @return string
      */
-    public function actionMigrate($args) {
+    public function actionSchema($args) {
         
         $schema = $args;
         $this->class = 'dump_database_' . $schema;
