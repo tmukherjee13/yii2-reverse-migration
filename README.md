@@ -25,7 +25,7 @@ to the require section of your `composer.json` file.
 Usage
 -----
 
-Once the extension is installed, Add the following in console.php:  :
+Once the extension is installed, Add the following in console.php:
 
 ```php
 return [
@@ -46,7 +46,7 @@ return [
 
 then you can use the migration command as follows:
 
-to create table migration,
+for table migration,
 ```
 yii migration/table <tablename>
 ```
@@ -54,6 +54,22 @@ or
 ```
 yii migration/table <tablename1>,<tablename2>
 
+```
+
+for data migration,
+```
+yii migration/data <tablename>
+```
+or
+```
+yii migration/data <tablename1>,<tablename2>
+
+```
+
+
+to create migration of whole schema,
+```
+yii migration/schema <schemaname>
 ```
 
 # yii2-reverse-migration
