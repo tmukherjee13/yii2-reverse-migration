@@ -25,9 +25,35 @@ to the require section of your `composer.json` file.
 Usage
 -----
 
-Once the extension is installed, simply use it in your code by  :
+Once the extension is installed, Add the following in console.php:  :
 
 ```php
-<?= \tmukherjee13\migration\AutoloadExample::widget(); ?>
+return [
+    ...
+    'components' => [
+        ...
+    ],
+    'controllerMap' => [
+        'migration' => [
+            'class' => 'tmukherjee13\migration\console\controllers\MigrationController',
+            'templateFile' => '@tmukherjee13/migration/views/template.php',
+        ],
+    ],
+    ...
+];
+
 ```
+
+then you can use the migration command as follows:
+
+to create table migration,
+```
+yii migration/table <tablename>
+```
+or
+```
+yii migration/table <tablename1>,<tablename2>
+
+```
+
 # yii2-reverse-migration
