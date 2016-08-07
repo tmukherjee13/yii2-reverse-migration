@@ -264,8 +264,9 @@ SQL;
 
                 $up .= '$this->execute("SET foreign_key_checks = 0;");' . "\n";
 
+                
                 // Create table
-                $up .= "\t\t" . '$this->createTable(\'' . $table->name . '\', array(' . "\n";
+                $up .= "\t\t" . '$this->createTable(\''.$this->getTableName($table).'\', array(' . "\n";
 
                 foreach ($table->columns as $col) {
                     $up .= "\t\t\t" . '\'' . $col->name . '\'=>"' . $this->getColType($col) . '",' . "\n";
@@ -290,7 +291,7 @@ SQL;
                         }
                     }
                     $indexStr = implode(',', $indexArr);
-                    $up .= "\t\t" . '$this->createIndex(\'idx_' . $indexKey . "', '$table->name', '$indexStr', TRUE);\n";
+                    $up .= "\t\t" . '$this->createIndex(\'idx_' . $indexKey . "', '".$this->getTableName($table)."', '$indexStr', TRUE);\n";
 
                 }
 
@@ -307,16 +308,17 @@ SQL;
 
                 $up .= "\t\t" . '$this->execute("SET foreign_key_checks = 1;");' . "\n";
                 $down .= $dropForeignKeys . "\n";
-                $down .= "\t\t" . '$this->dropTable(\'' . $table->name . '\');' . "\n";
+                $down .= "\t\t" . '$this->dropTable(\'' . $this->getTableName($table) .'\');' . "\n";
 
                 $this->prepareFile(['up' => $up, 'down' => $down]) . "\n\n";
             }
 
         }
+        return;
     }
 
     /**
-     * Returns the name of the table migration file created
+     * Returns the name of the data migration file created
      * @param string $args the table name
      * @return string
      */
@@ -333,6 +335,7 @@ SQL;
                 $columns = \Yii::$app->db->getTableSchema($table);
                 $prefix  = \Yii::$app->db->tablePrefix;
                 $table   = str_replace($prefix, '', $table);
+                $table   = $columns;
 
                 $prepared_columns = '';
                 $up               = '';
@@ -342,7 +345,7 @@ SQL;
                 $name = $this->getFileName();
 
                 if (!empty($table)) {
-                    $data = Yii::$app->db->createCommand('SELECT * FROM `' . $table . '`')->queryAll();
+                    $data = Yii::$app->db->createCommand('SELECT * FROM `' . $table->name . '`')->queryAll();
 
                     $pcolumns = '';
                     foreach ($columns->columns as $column) {
@@ -353,17 +356,17 @@ SQL;
                     }
 
                     if (empty($prepared_data)) {
-                        $this->stdout("\nTable '{$table}' doesn't contain any data.\n\n", Console::FG_RED);
+                        $this->stdout("\nTable '{$table->name}' doesn't contain any data.\n\n", Console::FG_RED);
                     } else {
                         $pcolumns   = $this->prepareColumns($pcolumns);
                         $prows      = $this->prepareData($prepared_data);
                         $insertData = $this->prepareInsert($pcolumns, $prows);
 
-                        $up .= "\t\t\t" . '$this->execute("SET foreign_key_checks = 0;");' . "\n\n";
-                        $up .= "\t\t\t" . '$this->truncateTable(\'' . $table . '\');' . "\n\n";
-                        $up .= "\t\t\t" . $insertData . "\n\n";
-                        $up .= "\t\t\t" . '$this->execute("SET foreign_key_checks = 1;");' . "\n\n";
-                        $down .= "\t\t\t" . '$this->truncateTable(\'' . $table . '\');' . "\n\n";
+                        $up .=  '$this->execute("SET foreign_key_checks = 0;");' . "\n\n";
+                        $up .= "\t\t" . '$this->truncateTable(\'' . $this->getTableName($table). '\');' . "\n\n";
+                        $up .= "\t\t" . $insertData . "\n\n";
+                        $up .= "\t\t" . '$this->execute("SET foreign_key_checks = 1;");' . "\n\n";
+                        $down .= '$this->truncateTable(\'' . $this->getTableName($table) . '\');' . "\n\n";
                         $this->prepareFile(['up' => $up, 'down' => $down]);
                     }
                     // return self::EXIT_CODE_ERROR;
@@ -392,16 +395,17 @@ SQL;
         $down            = '';
         $hasPrimaryKey   = false;
         $name            = $this->getFileName();
-
+        $tablePrefix = $this->db->tablePrefix;
         $generateTables = [];
 
         foreach ($tables as $table) {
-            if ($table->name === $this->migrationTable) {
+            if ($table->name === $this->db->tablePrefix.$this->migrationTable) {
                 continue;
             }
             $generateTables[] = $table->name;
         }
         $this->actionTable($generateTables);
+        $this->actionData($generateTables);
         return self::EXIT_CODE_NORMAL;
 
         // $result = "<?php \n\n";
@@ -534,7 +538,7 @@ SQL;
             foreach ($row as $column => $value) {
                 $rows .= "'" . $value . "',";
             }
-            $this->_rows .= "\n" . $this->dataFormat($rows) . ",";
+            $this->_rows .= "\n\t\t\t" . $this->dataFormat($rows) . ",";
         }
 
         if (!empty($this->_rows)) {
@@ -624,6 +628,19 @@ SQL;
     public function prepareInsert($rows, $columns)
     {
 
-        return '$this->batchInsert("{{%' . $this->table . '%}}", "' . $rows . '", "' . $columns . '");';
+        return '$this->batchInsert("{{%' . str_replace($this->db->tablePrefix, '', $this->table) . '}}", ' . $rows . ', ' . $columns . ');';
+    }
+
+    /**
+     * Prepared the table name
+     * @method getTableName
+     * @param  object       $table 
+     * @return string       
+     * @author Tarun Mukherjee (https://github.com/tmukherjee13)
+     */
+    
+    public function getTableName($table)
+    {
+        return '{{%' . str_replace($this->db->tablePrefix, '', $table->name) . '}}';
     }
 }

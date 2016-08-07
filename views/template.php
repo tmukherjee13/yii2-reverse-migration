@@ -25,19 +25,4 @@ class <?= $className ?> extends Migration
     {
         <?= $down ?>
     }
-
-    /*
-    public function up()
-    {
-
-    }
-
-    public function down()
-    {
-        echo "<?= $className ?> cannot be reverted.\n";
-
-        return false;
-    }
-    */
-    
 }
