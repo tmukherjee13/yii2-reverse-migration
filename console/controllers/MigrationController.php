@@ -1,16 +1,17 @@
 <?php
 namespace tmukherjee13\migration\console\controllers;
 
+use tmukherjee13\migration\console\components\Formatter;
 use Yii;
-use yii\console\Controller;
+use yii\console\controllers\BaseMigrateController;
 use yii\console\Exception;
 use yii\db\Connection;
-use yii\helpers\Console;
 
 // use yii\console\controllers\BaseMigrateController as Migrate;
+use yii\helpers\Console;
 use yii\helpers\FileHelper;
 
-class MigrationController extends Controller
+class MigrationController extends BaseMigrateController
 {
 
     /**
@@ -21,12 +22,12 @@ class MigrationController extends Controller
     /**
      * @var string a migration table name
      */
-    protected $migrationTable = 'migration';
+    public $migrationTable = 'migration';
 
     /**
      * @var string a migration path
      */
-    protected $migrationPath = "@app/migrations";
+    public $migrationPath = "@app/migrations";
 
     public $templateFile = "@tmukherjee13/migration";
 
@@ -41,29 +42,14 @@ class MigrationController extends Controller
     protected $table = "";
 
     /**
+     * @var string table columns
+     */
+    protected $fields = "";
+
+    /**
      * @var string file name
      */
     protected $fileName = '';
-
-    /**
-     * @var array column enclosing literal
-     */
-    protected $column_encloser = ["[", "]"];
-
-    /**
-     * @var array data enclosing literal
-     */
-    protected $data_encloser = ["[", "]"];
-
-    /**
-     * @var string column string
-     */
-    protected $_columns = '';
-
-    /**
-     * @var string row string
-     */
-    protected $_rows = '';
 
     /**
      * @var Connection|string the DB connection object or the application component ID of the DB connection.
@@ -224,10 +210,10 @@ SQL;
      * Creates migration based on table
      * @method actionTable
      * @param  array       $tables Name of the table to create migration
-     * @return mixed      
+     * @return mixed
      * @author Tarun Mukherjee (https://github.com/tmukherjee13)
      */
-        
+
     public function actionTable(array $tables)
     {
 
@@ -236,7 +222,6 @@ SQL;
             foreach ($tables as $key => $tableName) {
 
                 $this->class = 'create_table_' . $tableName;
-                $this->table = $tableName;
 
                 try {
 
@@ -262,25 +247,16 @@ SQL;
                 $down            = "";
                 $name            = $this->getFileName();
 
-                $up .= '$this->execute("SET foreign_key_checks = 0;");' . "\n";
-
-                
-                // Create table
-                $up .= "\t\t" . '$this->createTable(\''.$this->getTableName($table).'\', array(' . "\n";
+                $this->table = $this->getTableName($table);
 
                 foreach ($table->columns as $col) {
-                    $up .= "\t\t\t" . '\'' . $col->name . '\'=>"' . $this->getColType($col) . '",' . "\n";
+                    $up .= "\t\t\t" . '\'' . $col->name . '\'=>"' . Formatter::getColType($col) . '",' . "\n";
                     if ($col->isPrimaryKey) {
                         $hasPrimaryKey = true;
                         // Add column to composite primary key array
                         $compositePrimaryKeyCols[] = $col->name;
                     }
                 }
-                if ($hasPrimaryKey):
-                    $up .= "\t\t\t" . '\'PRIMARY KEY (' . implode(',', $compositePrimaryKeyCols) . ')\' ' . "\n\t\t" . '    ), \'\');' . "\n";
-                else:
-                    $up .= "\t\t\t" . '), \'\');' . "\n";
-                endif;
 
                 $ukeys = \Yii::$app->db->schema->findUniqueIndexes($table);
                 if (!empty($ukeys)) {
@@ -291,26 +267,25 @@ SQL;
                         }
                     }
                     $indexStr = implode(',', $indexArr);
-                    $up .= "\t\t" . '$this->createIndex(\'idx_' . $indexKey . "', '".$this->getTableName($table)."', '$indexStr', TRUE);\n";
+                    $up .= "\t\t" . '$this->createIndex(\'idx_' . $indexKey . "', '" . $this->getTableName($table) . "', '$indexStr', TRUE);\n";
 
                 }
 
-                // Add foreign key(s) and create indexes
                 if (!empty($table->foreignKeys)):
 
                     foreach ($table->foreignKeys as $fkName => $fk) {
                         $addForeignKeys .= "\t\t" . '$this->addForeignKey("' . $fkName . '", "' . $table->name . '", "' . $fk['column'] . '","' . $fk['table'] . '","' . $fk['ref_column'] . '", "' . $fk['delete'] . '", "' . $fk['update'] . '");' . "\n";
                         $dropForeignKeys .= '$this->dropForeignKey(' . "'$fkName', '$table->name');";
                     }
+
                 endif;
 
-                $up .= $addForeignKeys;
+                $this->fields = $table->columns;
 
-                $up .= "\t\t" . '$this->execute("SET foreign_key_checks = 1;");' . "\n";
-                $down .= $dropForeignKeys . "\n";
-                $down .= "\t\t" . '$this->dropTable(\'' . $this->getTableName($table) .'\');' . "\n";
+                $fields = $this->parseFields();
 
-                $this->prepareFile(['up' => $up, 'down' => $down]) . "\n\n";
+                $this->prepareFile(['up' => '', 'down' => '', 'foreignKeys' => $table->foreignKeys, 'fields' => $fields]) . "\n\n";
+
             }
 
         }
@@ -362,8 +337,8 @@ SQL;
                         $prows      = $this->prepareData($prepared_data);
                         $insertData = $this->prepareInsert($pcolumns, $prows);
 
-                        $up .=  '$this->execute("SET foreign_key_checks = 0;");' . "\n\n";
-                        $up .= "\t\t" . '$this->truncateTable(\'' . $this->getTableName($table). '\');' . "\n\n";
+                        $up .= '$this->execute("SET foreign_key_checks = 0;");' . "\n\n";
+                        $up .= "\t\t" . '$this->truncateTable(\'' . $this->getTableName($table) . '\');' . "\n\n";
                         $up .= "\t\t" . $insertData . "\n\n";
                         $up .= "\t\t" . '$this->execute("SET foreign_key_checks = 1;");' . "\n\n";
                         $down .= '$this->truncateTable(\'' . $this->getTableName($table) . '\');' . "\n\n";
@@ -395,11 +370,11 @@ SQL;
         $down            = '';
         $hasPrimaryKey   = false;
         $name            = $this->getFileName();
-        $tablePrefix = $this->db->tablePrefix;
-        $generateTables = [];
+        $tablePrefix     = $this->db->tablePrefix;
+        $generateTables  = [];
 
         foreach ($tables as $table) {
-            if ($table->name === $this->db->tablePrefix.$this->migrationTable) {
+            if ($table->name === $this->db->tablePrefix . $this->migrationTable) {
                 continue;
             }
             $generateTables[] = $table->name;
@@ -514,94 +489,6 @@ SQL;
         //  $this->prepareFile(['up'=>$up,'down'=>$down]);
     }
 
-    /**
-     * Returns the prepared column string
-     * @param string $data the column string|$trim the literal to trim
-     * @return string
-     */
-    public function prepareColumns($data, $trim = ',')
-    {
-        return $this->columnFormat($data, $trim);
-    }
-
-    /**
-     * Returns the prepared data string
-     * @param array $data the data array
-     * @return string
-     */
-    public function prepareData($data = [])
-    {
-
-        $this->_rows = '';
-        foreach ($data as $key => $row) {
-            $rows = '';
-            foreach ($row as $column => $value) {
-                $rows .= "'" . $value . "',";
-            }
-            $this->_rows .= "\n\t\t\t" . $this->dataFormat($rows) . ",";
-        }
-
-        if (!empty($this->_rows)) {
-            return $this->dataFormat($this->_rows);
-        }
-        return '';
-    }
-
-    /**
-     * Returns the formatted column string
-     * @param string $data the column string|$trim the literal to trim
-     * @return string
-     */
-    public function columnFormat($data, $trim = ',')
-    {
-        if (null !== $trim) {
-            $data = rtrim($data, $trim);
-        }
-
-        return "{$this->column_encloser[0]}" . rtrim($data, $trim) . "{$this->column_encloser[1]}";
-    }
-
-    /**
-     * Returns the formatted data string
-     * @param string $data the column string|$trim the literal to trim
-     * @return string
-     */
-    public function dataFormat($data, $trim = ',')
-    {
-        if (null !== $trim) {
-            $data = rtrim($data, $trim);
-        }
-
-        return "{$this->data_encloser[0]}" . $data . "{$this->data_encloser[1]}";
-    }
-
-    public function getColType($col)
-    {
-
-        if ($col->isPrimaryKey && $col->autoIncrement) {
-            $result = $col->dbType;
-            $result .= ' NOT NULL AUTO_INCREMENT';
-
-            // return "pk";
-            return $result;
-        }
-        $result = $col->dbType;
-        // die;
-        if (!$col->allowNull) {
-            $result .= ' NOT NULL';
-        }
-        if ($col->defaultValue != null && 'timestamp' != $col->dbType) {
-            $result .= " DEFAULT '{$col->defaultValue}'";
-        } elseif ($col->defaultValue == 'CURRENT_TIMESTAMP' && 'timestamp' == $col->dbType) {
-            $result .= " DEFAULT {$col->defaultValue}";
-        } elseif ($col->defaultValue != null && 'timestamp' == $col->dbType) {
-            $result .= " DEFAULT '{$col->defaultValue}'";
-        } elseif ($col->allowNull) {
-            $result .= ' DEFAULT NULL';
-        }
-        return $result;
-    }
-
     public function getFileName()
     {
         return 'm' . gmdate('ymd_His') . '_' . $this->class;
@@ -616,7 +503,10 @@ SQL;
     {
         $file = $this->migrationPath . DIRECTORY_SEPARATOR . $this->getFileName() . '.php';
         try {
-            $content = $this->renderFile(Yii::getAlias($this->templateFile), ['className' => $this->getFileName(), 'up' => $data['up'], 'down' => $data['down']]);
+
+            $data['table']     = $this->table;
+            $data['className'] = $this->getFileName();
+            $content           = $this->renderFile(Yii::getAlias($this->templateFile), $data);
             file_put_contents($file, $content);
             $this->stdout("\nNew migration {$this->getFileName()} successfully created.\nRun yii migrate to apply migrations.\n", Console::FG_GREEN);
             return $file;
@@ -634,13 +524,83 @@ SQL;
     /**
      * Prepared the table name
      * @method getTableName
-     * @param  object       $table 
-     * @return string       
+     * @param  object       $table
+     * @return string
      * @author Tarun Mukherjee (https://github.com/tmukherjee13)
      */
-    
+
     public function getTableName($table)
     {
         return '{{%' . str_replace($this->db->tablePrefix, '', $table->name) . '}}';
+    }
+
+    /**
+     * @inheritdoc
+     */
+    protected function getMigrationHistory($limit)
+    {
+        if ($this->db->schema->getTableSchema($this->migrationTable, true) === null) {
+            $this->createMigrationHistoryTable();
+        }
+        $query = new Query;
+        $rows  = $query->select(['version', 'apply_time'])
+            ->from($this->migrationTable)
+            ->orderBy('apply_time DESC, version DESC')
+            ->limit($limit)
+            ->createCommand($this->db)
+            ->queryAll();
+        $history = ArrayHelper::map($rows, 'version', 'apply_time');
+        unset($history[self::BASE_MIGRATION]);
+
+        return $history;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    protected function addMigrationHistory($version)
+    {
+        $command = $this->db->createCommand();
+        $command->insert($this->migrationTable, [
+            'version'    => $version,
+            'apply_time' => time(),
+        ])->execute();
+    }
+
+    /**
+     * @inheritdoc
+     */
+    protected function removeMigrationHistory($version)
+    {
+        $command = $this->db->createCommand();
+        $command->delete($this->migrationTable, [
+            'version' => $version,
+        ])->execute();
+    }
+
+    /**
+     * @inheritdoc
+     */
+    protected function parseFields()
+    {
+        $fields = [];
+
+        foreach ($this->fields as $column => $schema) {
+            $chunks = [];
+
+            $columns = Formatter::formatCol($schema);
+
+            foreach ($columns as $key => $chunk) {
+                if (!preg_match('/^(.+?)\(([^)]+)\)$/', $chunk)) {
+                    $chunk .= '()';
+                }
+                $chunks[] = $chunk;
+            }
+            $fields[] = [
+                'property'   => $column,
+                'decorators' => implode('->', $chunks),
+            ];
+        }
+        return $fields;
     }
 }
