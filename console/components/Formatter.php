@@ -11,24 +11,36 @@ class Formatter
     /**
      * @var array column enclosing literal
      */
-    protected $column_encloser = ["[", "]"];
+    protected static $column_encloser = ["[", "]"];
 
     /**
      * @var array data enclosing literal
      */
-    protected $data_encloser = ["[", "]"];
+    protected static $data_encloser = ["[", "]"];
 
     /**
      * @var string column string
      */
-    protected $_columns = '';
+    protected static $_columns = '';
 
     /**
      * @var string row string
      */
-    protected $_rows = '';
+    protected static $_rows = '';
 
     protected static $_colTypes = ['smallint'];
+
+
+
+
+    public function prepareInsert($rows, $columns)
+    {
+
+        return '$this->batchInsert("{{%test}}", ' . $rows . ', ' . $columns . ');';
+    }
+
+
+
     /**
      * Returns the prepared column string
      * @param string $data the column string|$trim the literal to trim
@@ -36,7 +48,41 @@ class Formatter
      */
     public function prepareColumns($data, $trim = ',')
     {
-        return $this->columnFormat($data, $trim);
+        return self::columnFormat($data, $trim);
+    }
+
+    /**
+     * Returns the prepared data string
+     * @param array $data the data array
+     * @return string
+     */
+    public function prepareData($data = [])
+    {
+        self::$_rows = '';
+        foreach ($data as $key => $row) {
+            $rows = '';
+            foreach ($row as $column => $value) {
+                $rows .= "'" . $value . "',";
+            }
+            self::$_rows .= "\n\t\t\t" . self::dataFormat($rows) . ",";
+        }
+        if (!empty(self::$_rows)) {
+            return self::dataFormat(self::$_rows);
+        }
+        return '';
+    }
+
+    /**
+     * Returns the formatted data string
+     * @param string $data the column string|$trim the literal to trim
+     * @return string
+     */
+    public function dataFormat($data, $trim = ',')
+    {
+        if (null !== $trim) {
+            $data = rtrim($data, $trim);
+        }
+        return self::$data_encloser[0] . $data . self::$data_encloser[1];
     }
 
     /**
@@ -50,7 +96,7 @@ class Formatter
             $data = rtrim($data, $trim);
         }
 
-        return "{$this->column_encloser[0]}" . rtrim($data, $trim) . "{$this->column_encloser[1]}";
+        return self::$column_encloser[0] . rtrim($data, $trim) . self::$column_encloser[1];
     }
 
     public function getColType($col)

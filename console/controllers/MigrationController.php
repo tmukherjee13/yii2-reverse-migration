@@ -306,11 +306,14 @@ SQL;
                 $table       = $args;
                 $this->class = 'insert_data_into_' . $table;
                 $this->table = $table;
+                $this->templateFile = '@tmukherjee13/migration/views/dataTemplate.php';
 
                 $columns = \Yii::$app->db->getTableSchema($table);
                 $prefix  = \Yii::$app->db->tablePrefix;
                 $table   = str_replace($prefix, '', $table);
                 $table   = $columns;
+
+                $this->table = $this->getTableName($table);
 
                 $prepared_columns = '';
                 $up               = '';
@@ -333,16 +336,13 @@ SQL;
                     if (empty($prepared_data)) {
                         $this->stdout("\nTable '{$table->name}' doesn't contain any data.\n\n", Console::FG_RED);
                     } else {
-                        $pcolumns   = $this->prepareColumns($pcolumns);
-                        $prows      = $this->prepareData($prepared_data);
-                        $insertData = $this->prepareInsert($pcolumns, $prows);
+                        $pcolumns   = Formatter::prepareColumns($pcolumns);
+                        $prows      = Formatter::prepareData($prepared_data);
 
-                        $up .= '$this->execute("SET foreign_key_checks = 0;");' . "\n\n";
-                        $up .= "\t\t" . '$this->truncateTable(\'' . $this->getTableName($table) . '\');' . "\n\n";
-                        $up .= "\t\t" . $insertData . "\n\n";
-                        $up .= "\t\t" . '$this->execute("SET foreign_key_checks = 1;");' . "\n\n";
-                        $down .= '$this->truncateTable(\'' . $this->getTableName($table) . '\');' . "\n\n";
-                        $this->prepareFile(['up' => $up, 'down' => $down]);
+                        $this->prepareFile(['columns' => $pcolumns, 'rows' => $prows]);
+
+                        return self::EXIT_CODE_NORMAL;
+                       
                     }
                     // return self::EXIT_CODE_ERROR;
                 }
@@ -380,7 +380,7 @@ SQL;
             $generateTables[] = $table->name;
         }
         $this->actionTable($generateTables);
-        $this->actionData($generateTables);
+        // $this->actionData($generateTables);
         return self::EXIT_CODE_NORMAL;
 
         // $result = "<?php \n\n";
@@ -515,11 +515,7 @@ SQL;
         }
     }
 
-    public function prepareInsert($rows, $columns)
-    {
-
-        return '$this->batchInsert("{{%' . str_replace($this->db->tablePrefix, '', $this->table) . '}}", ' . $rows . ', ' . $columns . ');';
-    }
+   
 
     /**
      * Prepared the table name
