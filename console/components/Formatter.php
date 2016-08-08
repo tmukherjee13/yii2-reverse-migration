@@ -82,10 +82,6 @@ class Formatter
 
     public function formatCol($col)
     {
-
-        echo "<pre>";
-        print_r($col);
-        echo "</pre>";
         $decorator = [];
 
         if ($col->isPrimaryKey && $col->autoIncrement) {
