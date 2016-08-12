@@ -154,7 +154,7 @@ SQL;
         try {
 
             // $rows = $this->db->createCommand($sql, [':tableName' => $table->name])->queryAll();
-            $rows = \Yii::$app->db->createCommand($sql, [':tableName' => $table->name])->queryAll();
+            $rows = $this->db->createCommand($sql, [':tableName' => $table->name])->queryAll();
 
             $constraints        = [];
             $table->foreignKeys = [];
@@ -205,7 +205,7 @@ SQL;
      */
     protected function getCreateTableSql($table)
     {
-        $row = \Yii::$app->db->createCommand('SHOW CREATE TABLE ' . $this->quoteTableName($table->fullName))->queryOne();
+        $row = $this->db->createCommand('SHOW CREATE TABLE ' . $this->quoteTableName($table->fullName))->queryOne();
         if (isset($row['Create Table'])) {
             $sql = $row['Create Table'];
         } else {
@@ -240,7 +240,7 @@ SQL;
 
                 try {
 
-                    $table = \Yii::$app->db->getTableSchema($tableName);
+                    $table = $this->db->getTableSchema($tableName);
                 } catch (Exception $e) {
                     throw new Exception("There has been an error processing the file. Please try after some time.");
                 }
@@ -282,7 +282,7 @@ SQL;
                     $up .= "\t\t\t" . '), \'\');' . "\n";
                 endif;
 
-                $ukeys = \Yii::$app->db->schema->findUniqueIndexes($table);
+                $ukeys = $this->db->schema->findUniqueIndexes($table);
                 if (!empty($ukeys)) {
                     foreach ($ukeys as $key => $value) {
                         $indexKey = $key;
@@ -332,8 +332,8 @@ SQL;
                 $this->class = 'insert_data_into_' . $table;
                 $this->table = $table;
 
-                $columns = \Yii::$app->db->getTableSchema($table);
-                $prefix  = \Yii::$app->db->tablePrefix;
+                $columns = $this->db->getTableSchema($table);
+                $prefix  = $this->db->tablePrefix;
                 $table   = str_replace($prefix, '', $table);
                 $table   = $columns;
 
@@ -345,7 +345,7 @@ SQL;
                 $name = $this->getFileName();
 
                 if (!empty($table)) {
-                    $data = Yii::$app->db->createCommand('SELECT * FROM `' . $table->name . '`')->queryAll();
+                    $data = $this->db->createCommand('SELECT * FROM `' . $table->name . '`')->queryAll();
 
                     $pcolumns = '';
                     foreach ($columns->columns as $column) {
@@ -386,7 +386,7 @@ SQL;
         $schema      = $args;
         $this->class = 'dump_database_' . $schema;
 
-        // $tables = Yii::$app->db->schema->getTableNames($schema);
+        // $tables = $this->db->schema->getTableNames($schema);
 
         $tables          = $this->db->schema->getTableSchemas($schema);
         $addForeignKeys  = '';
