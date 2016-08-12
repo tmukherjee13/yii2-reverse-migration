@@ -62,7 +62,7 @@ class Formatter
         foreach ($data as $key => $row) {
             $rows = '';
             foreach ($row as $column => $value) {
-                $rows .= "'" . $value . "',";
+                $rows .= "'" . addslashes($value) . "',";
             }
             self::$_rows .= "\n\t\t\t" . self::dataFormat($rows) . ",";
         }
