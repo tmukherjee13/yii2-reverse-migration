@@ -3,7 +3,7 @@
     "description": "Generate working migration classes from existing Database",
     "type": "yii2-extension",
     "keywords": ["yii2","database","migration"],
-    "license": "MIT",
+    "license": "BSD-3-Clause",
     "authors": [
         {
             "name": "Tarun Mukherjee",
