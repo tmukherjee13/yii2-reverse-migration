@@ -258,6 +258,11 @@ SQL;
                     }
                 }
 
+                // echo "<pre>";
+                // print_r($up);
+                // echo "</pre>";
+                // die;
+
                 $ukeys = $this->db->schema->findUniqueIndexes($table);
                 if (!empty($ukeys)) {
                     foreach ($ukeys as $key => $value) {

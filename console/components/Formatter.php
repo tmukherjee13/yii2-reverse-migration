@@ -110,7 +110,7 @@ class Formatter
             return 'pk';
         }
         $result = $col->dbType;
-        // die;
+        
         if (!$col->allowNull) {
             $result .= ' NOT NULL';
         }
@@ -134,9 +134,11 @@ class Formatter
             $decorator[] = 'primaryKey';
         } elseif (in_array($col->type, self::$_colTypes)) {
             $decorator[] = "{$col->phpType}";
+        }elseif($col->type == 'decimal'){
+            $decorator[] = "{$col->dbType}";
         } else {
 
-            if (!empty($col->size) && $col->size == 1) {
+            if (!empty($col->size) && $col->size == 1 && $col->type != 'char') {
                 $column = "boolean";
             } else {
                 $column = "{$col->type}";
@@ -158,7 +160,7 @@ class Formatter
         if (!empty($col->defaultValue)) {
             $decorator[] = "defaultValue({$col->defaultValue})";
         }
-
+        
         return $decorator;
     }
 }
