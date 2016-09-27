@@ -1,7 +1,5 @@
-# Required to run your project under the correct environment.
 language: php
 
-# Versions of PHP you want your project run with.
 php:
   - 5.4
   - 5.5
@@ -9,23 +7,14 @@ php:
   - 7.0
   - hhvm
 
-# Commands to be run before your environment runs.
-before_script:
+install:
   - composer self-update
-  - composer install --prefer-source --no-interaction --dev
+  - composer global require "fxp/composer-asset-plugin:~1.1.1"
+  - composer install
 
-# Commands you want to run that will verify your build.
-script: phpunit
+before_script:
+  - travis_retry composer self-update
+  - travis_retry composer install --no-interaction --prefer-source --dev
 
-# allow_failures: Allow this build to fail under the specified environments.
-# fast_finish: If your build fails do not continue trying to build, just stop.
-matrix:
-  allow_failures:
-    - php: 5.4
-    - php: hhvm
-  fast_finish: true
-
-# Customize when the notification emails are sent.
-notifications:
-    on_success: never
-    on_failure: always
+script:
+  - phpunit --coverage-text --coverage-clover=coverage.clover
