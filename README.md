@@ -2,6 +2,9 @@ Yii2 Reverse Migration
 ======================
 Generate working migration classes from existing Database
 
+[![Latest Stable Version](https://poser.pugx.org/tmukherjee13/yii2-reverse-migration/v/stable)](https://packagist.org/packages/tmukherjee13/yii2-reverse-migration)
+
+
 Installation
 ------------
 
