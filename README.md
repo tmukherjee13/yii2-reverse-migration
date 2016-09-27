@@ -3,10 +3,7 @@ Yii2 Reverse Migration
 Generate working migration classes from existing Database
 
 [![Latest Stable Version](https://poser.pugx.org/tmukherjee13/yii2-reverse-migration/v/stable)](https://packagist.org/packages/tmukherjee13/yii2-reverse-migration)
-[![Daily Downloads](https://poser.pugx.org/tmukherjee13/yii2-reverse-migration/d/daily)](https://packagist.org/packages/tmukherjee13/yii2-reverse-migration)
-[![Monthly Downloads](https://poser.pugx.org/tmukherjee13/yii2-reverse-migration/d/monthly)](https://packagist.org/packages/tmukherjee13/yii2-reverse-migration)
-[![Total Downloads](https://poser.pugx.org/tmukherjee13/yii2-reverse-migration/downloads)](https://packagist.org/packages/tmukherjee13/yii2-reverse-migration)
-[![License](https://poser.pugx.org/tmukherjee13/yii2-reverse-migration/license)](https://packagist.org/packages/tmukherjee13/yii2-reverse-migration)
+[![Packagist](https://img.shields.io/packagist/dt/doctrine/orm.svg?maxAge=2592000)](https://packagist.org/packages/tmukherjee13/yii2-reverse-migration)[![License](https://poser.pugx.org/tmukherjee13/yii2-reverse-migration/license)](https://packagist.org/packages/tmukherjee13/yii2-reverse-migration)
 
 
 Installation
