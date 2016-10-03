@@ -246,10 +246,7 @@ SQL;
                     }
                 }
 
-                // echo "<pre>";
-                // print_r($up);
-                // echo "</pre>";
-                // die;
+               
 
                 $ukeys = $this->db->schema->findUniqueIndexes($table);
                 if (!empty($ukeys)) {
@@ -375,111 +372,7 @@ SQL;
         $this->actionTable($generateTables);
         // $this->actionData($generateTables);
         return self::EXIT_CODE_NORMAL;
-
-        // $result = "<?php \n\n";
-        // $result.= "use yii\db\Schema;\n\n";
-        // $result.= "use yii\db\Migration;\n\n";
-        // $result.= "class {$name} extends Migration\n\n{\n\n";
-
-        // $result.= "\tpublic function safeUp()\n\t\t{\n";
-        //  foreach ($tables as $table) {
-        //      if ($table->name === $this->migrationTable) {
-        //          continue;
-        //      }
-
-        //      $hasPrimaryKey = false;
-        //      $compositePrimaryKeyCols = array();
-
-        //      // Create table
-        //      $up.= "\t\t\t" . '$this->createTable(\'' . $table->name . '\', array(' . "\n";
-        //      foreach ($table->columns as $col) {
-        //          $up.= "\t\t\t\t" . '\'' . $col->name . '\'=>"' . $this->getColType($col) . '",' . "\n";
-
-        //          // if ($col->isPrimaryKey && !$col->autoIncrement) {
-
-        //          //     // Add column to composite primary key array
-        //          //     $compositePrimaryKeyCols[] = $col->name;
-        //          // }
-        //          if ($col->isPrimaryKey) {
-
-        //              $hasPrimaryKey = true;
-
-        //              // Add column to composite primary key array
-        //              $compositePrimaryKeyCols[] = $col->name;
-        //          }
-        //      }
-        //      if ($hasPrimaryKey):
-        //          $up.= "\t\t\t\t" . '\'PRIMARY KEY (' . implode(',', $compositePrimaryKeyCols) . ')\' ' . "\n\t\t" . '    ), \'\');' . "\n";
-        //      else:
-        //          $up.= "\t\t\t\t" . '), \'\');' . "\n\n";
-        //      endif;
-
-        //      // Add foreign key(s) and create indexes
-        //      if (!empty($table->foreignKeys)):
-
-        //          foreach ($table->foreignKeys as $col => $fk) {
-
-        //              $fk_attr = array_values($fk);
-        //              $fk_keys = array_keys($fk);
-
-        //              // Foreign key naming convention: fk_table_foreignTable_col (max 64 characters)
-        //              if ($col == 0):
-        //                  $fkName = substr('fk_' . $table->name . '_' . $fk_keys[1] . '_' . $fk_attr[1], 0, 64);
-        //              else:
-        //                  $fkName = substr('fk_' . $table->name . '_' . $fk_keys[1] . '_' . $fk_attr[1], 0, 64);
-
-        //                  // $fkName = substr('fk_' . $table->name . '_' . $fk[0] . '_' . $col, 0, 64);
-
-        //              endif;
-
-        //              if ($col == 0):
-        //                  $addForeignKeys.= '    $this->addForeignKey(' . "'$fkName', '$table->name', '$fk_keys[1]', '$fk[0]', '$fk_attr[1]', 'RESTRICT', 'CASCADE');\n\n";
-        //              else:
-        //                  $addForeignKeys.= '    $this->addForeignKey(' . "'$fkName', '$table->name', '$fk_keys[1]', '$fk[0]', '$fk_attr[1]', 'RESTRICT', 'CASCADE');\n\n";
-        //              endif;
-
-        //              $dropForeignKeys.= "\t" . '$this->dropForeignKey(' . "'$fkName', '$table->name');\n\n";
-
-        //              // Index naming convention: idx_col
-        //              if ($col == 0):
-        //                  $up.= '$this->createIndex(\'idx_' . $fk[0] . "', '$table->name', '$fk_keys[1]', FALSE);\n\n";
-        //              else:
-        //                  $up.= '    $this->createIndex(\'idx_' . $fk[0] . "', '$table->name', '$fk_keys[1]', FALSE);\n\n";
-        //              endif;
-        //          }
-        //      endif;
-
-        //      // Add composite primary key for join tables
-        //      if ($compositePrimaryKeyCols) {
-
-        //          //$result.= '    $this->addPrimaryKey(\'pk_' . $table->name . "', '$table->name', '" . implode(',', $compositePrimaryKeyCols) . "');\n\n";
-
-        //      }
-
-        //  }
-
-        // $up.= $addForeignKeys;
-
-        //  // This needs to come after all of the tables have been created.
-        //  // $result.= "\t\t}\n\n\n";
-        //  // $result.= "\tpublic function safeDown()\n\t\t{\n";
-        //  $down.= $dropForeignKeys;
-
-        //  // This needs to come before the tables are dropped.
-        //  foreach ($tables as $table) {
-        //      if ($table->name === $this->migrationTable) {
-        //          continue;
-        //      }
-        //      $down.= "\t\t\t" . '$this->dropTable(\'' . $table->name . '\');' . "\n";
-        //  }
-        //  // $result.= "\t\t}\n\n}\n";
-
-        //  // $path = '/var/www/public_html/';
-        //  // $fileName = $this->class;
-        //  // $filePath = $path . $fileName;
-        //  // $file = $this->migrationPath . DIRECTORY_SEPARATOR . $name . '.php';
-        //  // $this->prepareFile($result) . "\n\n";
-        //  $this->prepareFile(['up'=>$up,'down'=>$down]);
+        
     }
 
     public function getFileName()

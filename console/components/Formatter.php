@@ -11,24 +11,24 @@ class Formatter
     /**
      * @var array column enclosing literal
      */
-    protected static $column_encloser = ["[", "]"];
+    protected static $columnEncloser = ["[", "]"];
 
     /**
      * @var array data enclosing literal
      */
-    protected static $data_encloser = ["[", "]"];
+    protected static $dataEncloser = ["[", "]"];
 
     /**
      * @var string column string
      */
-    protected static $_columns = '';
+    protected static $columns = '';
 
     /**
      * @var string row string
      */
-    protected static $_rows = '';
+    protected static $rows = '';
 
-    protected static $_colTypes = ['smallint'];
+    protected static $colTypes = ['smallint'];
 
 
 
@@ -58,16 +58,16 @@ class Formatter
      */
     public function prepareData($data = [])
     {
-        self::$_rows = '';
+        self::$rows = '';
         foreach ($data as $key => $row) {
             $rows = '';
             foreach ($row as $column => $value) {
                 $rows .= "'" . addslashes($value) . "',";
             }
-            self::$_rows .= "\n\t\t\t" . self::dataFormat($rows) . ",";
+            self::$rows .= "\n\t\t\t" . self::dataFormat($rows) . ",";
         }
-        if (!empty(self::$_rows)) {
-            return self::dataFormat(self::$_rows);
+        if (!empty(self::$rows)) {
+            return self::dataFormat(self::$rows);
         }
         return '';
     }
@@ -82,7 +82,7 @@ class Formatter
         if (null !== $trim) {
             $data = rtrim($data, $trim);
         }
-        return self::$data_encloser[0] . $data . self::$data_encloser[1];
+        return self::$dataEncloser[0] . $data . self::$dataEncloser[1];
     }
 
     /**
@@ -96,7 +96,7 @@ class Formatter
             $data = rtrim($data, $trim);
         }
 
-        return self::$column_encloser[0] . rtrim($data, $trim) . self::$column_encloser[1];
+        return self::$columnEncloser[0] . rtrim($data, $trim) . self::$columnEncloser[1];
     }
 
     public function getColType($col)
@@ -132,7 +132,7 @@ class Formatter
 
         if ($col->isPrimaryKey && $col->autoIncrement) {
             $decorator[] = 'primaryKey';
-        } elseif (in_array($col->type, self::$_colTypes)) {
+        } elseif (in_array($col->type, self::$colTypes)) {
             $decorator[] = "{$col->phpType}";
         }elseif($col->type == 'decimal'){
             $decorator[] = "{$col->dbType}";
