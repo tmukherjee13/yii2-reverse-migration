@@ -6,6 +6,7 @@ use Yii;
 use yii\console\controllers\BaseMigrateController;
 use yii\console\Exception;
 use yii\db\Connection;
+use yii\db\Query;
 
 // use yii\console\controllers\BaseMigrateController as Migrate;
 use yii\helpers\Console;
@@ -55,7 +56,6 @@ class MigrationController extends BaseMigrateController
      * @var Connection|string the DB connection object or the application component ID of the DB connection.
      */
     public $db = 'db';
-
 
     /**
      * @inheritdoc
@@ -221,9 +221,9 @@ SQL;
                 if (empty($table)) {
                     throw new Exception("Table doesn't exists");
                 }
-               // $tsch = $this->findConstraints($table);
+                $this->findConstraints($table);
 
-                // $sql = $this->getCreateTableSql($table);
+                $sql = $this->getCreateTableSql($table);
                 // $constraint = [];
 
                 $hasPrimaryKey           = false;
@@ -245,8 +245,6 @@ SQL;
                         $compositePrimaryKeyCols[] = $col->name;
                     }
                 }
-
-               
 
                 $ukeys = $this->db->schema->findUniqueIndexes($table);
                 if (!empty($ukeys)) {
@@ -293,9 +291,9 @@ SQL;
         if ($this->confirm('Create the migration ' . "?", true)) {
             foreach ($tables as $key => $args) {
 
-                $table       = $args;
-                $this->class = 'insert_data_into_' . $table;
-                $this->table = $table;
+                $table              = $args;
+                $this->class        = 'insert_data_into_' . $table;
+                $this->table        = $table;
                 $this->templateFile = '@tmukherjee13/migration/views/dataTemplate.php';
 
                 $columns = $this->db->getTableSchema($table);
@@ -313,7 +311,15 @@ SQL;
                 $name = $this->getFileName();
 
                 if (!empty($table)) {
-                    $data = $this->db->createCommand('SELECT * FROM `' . $table->name . '`')->queryAll();
+
+                    // $data = $this->db->createCommand('SELECT * FROM `' . $table->name . '`')->queryAll();
+
+                    $query = new Query;
+
+                    $query->select('*')
+                        ->from($table->name);
+                    $command = $query->createCommand();
+                    $data    = $command->queryAll();
 
                     $pcolumns = '';
                     foreach ($columns->columns as $column) {
@@ -326,13 +332,13 @@ SQL;
                     if (empty($prepared_data)) {
                         $this->stdout("\nTable '{$table->name}' doesn't contain any data.\n\n", Console::FG_RED);
                     } else {
-                        $pcolumns   = Formatter::prepareColumns($pcolumns);
-                        $prows      = Formatter::prepareData($prepared_data);
+                        $pcolumns = Formatter::prepareColumns($pcolumns);
+                        $prows    = Formatter::prepareData($prepared_data);
 
                         $this->prepareFile(['columns' => $pcolumns, 'rows' => $prows]);
 
                         return self::EXIT_CODE_NORMAL;
-                       
+
                     }
                     // return self::EXIT_CODE_ERROR;
                 }
@@ -372,7 +378,7 @@ SQL;
         $this->actionTable($generateTables);
         // $this->actionData($generateTables);
         return self::EXIT_CODE_NORMAL;
-        
+
     }
 
     public function getFileName()
@@ -400,8 +406,6 @@ SQL;
             throw new Exception("There has been an error processing the file. Please try after some time.");
         }
     }
-
-   
 
     /**
      * Prepared the table name
