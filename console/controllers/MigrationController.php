@@ -56,7 +56,6 @@ class MigrationController extends BaseMigrateController
      */
     public $db = 'db';
 
-    public $test = "";
 
     /**
      * @inheritdoc
@@ -98,17 +97,6 @@ class MigrationController extends BaseMigrateController
             return true;
         }
         return false;
-    }
-
-    /**
-     * Returns the constant strings of yii\db\Schema class. e.g. Schema::TYPE_PK
-     * @param string $type the column type
-     * @return string
-     */
-    private function type($type)
-    {
-        $class = new \ReflectionClass('yii\db\Schema');
-        return $class->getShortName() . '::' . implode(array_keys($class->getConstants(), $type));
     }
 
     /**
@@ -233,9 +221,9 @@ SQL;
                 if (empty($table)) {
                     throw new Exception("Table doesn't exists");
                 }
-                $tsch = $this->findConstraints($table);
+               // $tsch = $this->findConstraints($table);
 
-                $sql = $this->getCreateTableSql($table);
+                // $sql = $this->getCreateTableSql($table);
                 // $constraint = [];
 
                 $hasPrimaryKey           = false;
@@ -257,6 +245,11 @@ SQL;
                         $compositePrimaryKeyCols[] = $col->name;
                     }
                 }
+
+                // echo "<pre>";
+                // print_r($up);
+                // echo "</pre>";
+                // die;
 
                 $ukeys = $this->db->schema->findUniqueIndexes($table);
                 if (!empty($ukeys)) {
