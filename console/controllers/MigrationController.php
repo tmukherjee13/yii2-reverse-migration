@@ -1,14 +1,11 @@
 <?php
 namespace tmukherjee13\migration\console\controllers;
 
-
 use Yii;
 use yii\console\controllers\BaseMigrateController;
 use yii\console\Exception;
 use yii\db\Connection;
 use yii\db\Query;
-
-// use yii\console\controllers\BaseMigrateController as Migrate;
 use yii\helpers\Console;
 use yii\helpers\FileHelper;
 
@@ -93,8 +90,6 @@ class MigrationController extends BaseMigrateController
 
             $version = Yii::getVersion();
             $this->stdout("Yii Database Migration Tool (based on Yii v{$version})\n", Console::FG_YELLOW);
-            // $this->stdout("No new migration found. Your system is up-to-date.\n", Console::FG_GREEN);
-            // $this->stdout("No migration has been done before.\n", Console::FG_YELLOW);
 
             return true;
         }
@@ -129,7 +124,6 @@ class MigrationController extends BaseMigrateController
 SQL;
         try {
 
-            // $rows = $this->db->createCommand($sql, [':tableName' => $table->name])->queryAll();
             $rows = $this->db->createCommand($sql, [':tableName' => $table->name])->queryAll();
 
             $constraints        = [];
@@ -145,7 +139,7 @@ SQL;
                 $table->foreignKeys[$row['constraint_name']]['delete']     = $row['DELETE_RULE'];
                 $table->foreignKeys[$row['constraint_name']]['update']     = $row['UPDATE_RULE'];
             }
-          
+
             return $constraints;
         } catch (\Exception $e) {
             $previous = $e->getPrevious();
@@ -402,18 +396,7 @@ SQL;
         }
     }
 
-    /**
-     * Prepared the table name
-     * @method getTableName
-     * @param  object       $table
-     * @return string
-     * @author Tarun Mukherjee (https://github.com/tmukherjee13)
-     */
-
-    public function getTableName($table)
-    {
-        return '{{%' . str_replace($this->db->tablePrefix, '', $table->name) . '}}';
-    }
+    
 
     /**
      * @inheritdoc

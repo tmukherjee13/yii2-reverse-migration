@@ -31,6 +31,23 @@ trait Formatter
     /** @var array conflicting column types */
     protected static $colTypes = ['smallint'];
 
+
+
+    /**
+     * Prepared the table name
+     * @method getTableName
+     * @param  object       $table
+     * @return string
+     * @author Tarun Mukherjee (https://github.com/tmukherjee13)
+     */
+
+    public function getTableName($table)
+    {
+        return '{{%' . str_replace($this->db->tablePrefix, '', $table->name) . '}}';
+    }
+
+
+    
     public function prepareInsert($rows, $columns)
     {
 
