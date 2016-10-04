@@ -1,7 +1,7 @@
 <?php
 namespace tmukherjee13\migration\console\controllers;
 
-use tmukherjee13\migration\console\components\Formatter;
+
 use Yii;
 use yii\console\controllers\BaseMigrateController;
 use yii\console\Exception;
@@ -14,6 +14,7 @@ use yii\helpers\FileHelper;
 
 class MigrationController extends BaseMigrateController
 {
+    use \tmukherjee13\migration\console\components\Formatter;
 
     /**
      * @inheritdoc
@@ -30,6 +31,7 @@ class MigrationController extends BaseMigrateController
      */
     public $migrationPath = "@app/migrations";
 
+    /** @var string template file to use for generation */
     public $templateFile = "@tmukherjee13/migration";
 
     /**
@@ -143,10 +145,7 @@ SQL;
                 $table->foreignKeys[$row['constraint_name']]['delete']     = $row['DELETE_RULE'];
                 $table->foreignKeys[$row['constraint_name']]['update']     = $row['UPDATE_RULE'];
             }
-            // $table->foreignKeys = [];
-            // foreach ($constraints as $constraint) {
-            //     $table->foreignKeys[] = array_merge([$constraint['referenced_table_name']], $constraint['columns']);
-            // }
+          
             return $constraints;
         } catch (\Exception $e) {
             $previous = $e->getPrevious();
@@ -224,7 +223,6 @@ SQL;
                 $this->findConstraints($table);
 
                 $sql = $this->getCreateTableSql($table);
-                // $constraint = [];
 
                 $hasPrimaryKey           = false;
                 $compositePrimaryKeyCols = array();
@@ -238,7 +236,7 @@ SQL;
                 $this->table = $this->getTableName($table);
 
                 foreach ($table->columns as $col) {
-                    $up .= "\t\t\t" . '\'' . $col->name . '\'=>"' . Formatter::getColType($col) . '",' . "\n";
+                    $up .= "\t\t\t" . '\'' . $col->name . '\'=>"' . $this->getColType($col) . '",' . "\n";
                     if ($col->isPrimaryKey) {
                         $hasPrimaryKey = true;
                         // Add column to composite primary key array
@@ -312,10 +310,7 @@ SQL;
 
                 if (!empty($table)) {
 
-                    // $data = $this->db->createCommand('SELECT * FROM `' . $table->name . '`')->queryAll();
-
                     $query = new Query;
-
                     $query->select('*')
                         ->from($table->name);
                     $command = $query->createCommand();
@@ -332,8 +327,8 @@ SQL;
                     if (empty($prepared_data)) {
                         $this->stdout("\nTable '{$table->name}' doesn't contain any data.\n\n", Console::FG_RED);
                     } else {
-                        $pcolumns = Formatter::prepareColumns($pcolumns);
-                        $prows    = Formatter::prepareData($prepared_data);
+                        $pcolumns = $this->prepareColumns($pcolumns);
+                        $prows    = $this->prepareData($prepared_data);
 
                         $this->prepareFile(['columns' => $pcolumns, 'rows' => $prows]);
 
@@ -474,7 +469,7 @@ SQL;
         foreach ($this->fields as $column => $schema) {
             $chunks = [];
 
-            $columns = Formatter::formatCol($schema);
+            $columns = $this->formatCol($schema);
 
             foreach ($columns as $key => $chunk) {
                 if (!preg_match('/^(.+?)\(([^)]+)\)$/', $chunk)) {

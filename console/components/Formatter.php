@@ -5,7 +5,7 @@ namespace tmukherjee13\migration\console\components;
 /**
  * Table class
  */
-class Formatter
+trait Formatter
 {
 
     /**
@@ -28,18 +28,14 @@ class Formatter
      */
     protected static $rows = '';
 
+    /** @var array conflicting column types */
     protected static $colTypes = ['smallint'];
-
-
-
 
     public function prepareInsert($rows, $columns)
     {
 
         return '$this->batchInsert("{{%test}}", ' . $rows . ', ' . $columns . ');';
     }
-
-
 
     /**
      * Returns the prepared column string
@@ -59,9 +55,9 @@ class Formatter
     public function prepareData($data = [])
     {
         self::$rows = '';
-        foreach ($data as $key => $row) {
+        foreach ($data as $row) {
             $rows = '';
-            foreach ($row as $column => $value) {
+            foreach ($row as $value) {
                 $rows .= "'" . addslashes($value) . "',";
             }
             self::$rows .= "\n\t\t\t" . self::dataFormat($rows) . ",";
@@ -99,18 +95,23 @@ class Formatter
         return self::$columnEncloser[0] . rtrim($data, $trim) . self::$columnEncloser[1];
     }
 
+    /**
+     * returns the correct column type for given column
+     *
+     * @method getColType
+     * @param  yii\db\TableSchema     $col
+     * @return string
+     * @author Tarun Mukherjee (https://github.com/tmukherjee13)
+     */
+
     public function getColType($col)
     {
 
         if ($col->isPrimaryKey && $col->autoIncrement) {
-            // $result = $col->dbType;
-            // $result .= ' NOT NULL AUTO_INCREMENT';
-            // return $result;
-
             return 'pk';
         }
         $result = $col->dbType;
-        
+
         if (!$col->allowNull) {
             $result .= ' NOT NULL';
         }
@@ -126,18 +127,25 @@ class Formatter
         return $result;
     }
 
+    /**
+     * Formats the given column with appropriate decorators.
+     *
+     * @method formatCol
+     * @param  yii\db\TableSchema    $col
+     * @return mixed
+     * @author Tarun Mukherjee (https://github.com/tmukherjee13)
+     */
+
     public function formatCol($col)
     {
         $decorator = [];
-
         if ($col->isPrimaryKey && $col->autoIncrement) {
             $decorator[] = 'primaryKey';
         } elseif (in_array($col->type, self::$colTypes)) {
             $decorator[] = "{$col->phpType}";
-        }elseif($col->type == 'decimal'){
+        } elseif ($col->type == 'decimal') {
             $decorator[] = "{$col->dbType}";
         } else {
-
             if (!empty($col->size) && $col->size == 1 && $col->type != 'char') {
                 $column = "boolean";
             } else {
@@ -145,12 +153,9 @@ class Formatter
                 if (!empty($col->size)) {
                     $column .= "({$col->size})";
                 }
-
             }
-
             $decorator[] = $column;
         }
-
         if ($col->unsigned) {
             $decorator[] = 'unsigned';
         }
@@ -160,7 +165,8 @@ class Formatter
         if (!empty($col->defaultValue)) {
             $decorator[] = "defaultValue({$col->defaultValue})";
         }
-        
+
         return $decorator;
     }
+
 }
