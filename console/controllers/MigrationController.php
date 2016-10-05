@@ -81,7 +81,9 @@ class MigrationController extends BaseMigrateController
                 throw new Exception("The 'db' option must refer to the application component ID of a DB connection.");
             }
 
-            $path = Yii::getAlias($this->migrationPath);
+            $path = (string)Yii::getAlias($this->migrationPath);
+
+
             if (!is_dir($path)) {
                 if ($action->id !== 'table') {
 
@@ -93,8 +95,6 @@ class MigrationController extends BaseMigrateController
 
             $version = Yii::getVersion();
             $this->stdout("Yii Database Migration Tool (based on Yii v{$version})\n", Console::FG_YELLOW);
-            // $this->stdout("No new migration found. Your system is up-to-date.\n", Console::FG_GREEN);
-            // $this->stdout("No migration has been done before.\n", Console::FG_YELLOW);
 
             return true;
         }
@@ -129,7 +129,6 @@ class MigrationController extends BaseMigrateController
 SQL;
         try {
 
-            // $rows = $this->db->createCommand($sql, [':tableName' => $table->name])->queryAll();
             $rows = $this->db->createCommand($sql, [':tableName' => $table->name])->queryAll();
 
             $constraints        = [];
@@ -138,7 +137,6 @@ SQL;
                 $constraints[$row['constraint_name']]['referenced_table_name']        = $row['referenced_table_name'];
                 $constraints[$row['constraint_name']]['columns'][$row['column_name']] = $row['referenced_column_name'];
 
-                // $table->foreignKeys[$row['constraint_name']]['name'] = $row['constraint_name'];
                 $table->foreignKeys[$row['constraint_name']]['table']      = $row['referenced_table_name'];
                 $table->foreignKeys[$row['constraint_name']]['column']     = $row['column_name'];
                 $table->foreignKeys[$row['constraint_name']]['ref_column'] = $row['referenced_column_name'];
@@ -222,23 +220,19 @@ SQL;
                 }
                 $this->findConstraints($table);
 
-                $sql = $this->getCreateTableSql($table);
+                $this->getCreateTableSql($table);
 
-                $hasPrimaryKey           = false;
                 $compositePrimaryKeyCols = array();
 
                 $addForeignKeys  = "";
                 $dropForeignKeys = "";
                 $up              = "";
-                $down            = "";
-                $name            = $this->getFileName();
 
                 $this->table = $this->getTableName($table);
 
                 foreach ($table->columns as $col) {
                     $up .= "\t\t\t" . '\'' . $col->name . '\'=>"' . $this->getColType($col) . '",' . "\n";
                     if ($col->isPrimaryKey) {
-                        $hasPrimaryKey = true;
                         // Add column to composite primary key array
                         $compositePrimaryKeyCols[] = $col->name;
                     }
@@ -246,6 +240,7 @@ SQL;
 
                 $ukeys = $this->db->schema->findUniqueIndexes($table);
                 if (!empty($ukeys)) {
+                    $indexArr =[];
                     foreach ($ukeys as $key => $value) {
                         $indexKey = $key;
                         foreach ($value as $id => $field) {
@@ -280,8 +275,8 @@ SQL;
 
     /**
      * Returns the name of the data migration file created
-     * @param string $args the table name
-     * @return string
+     * @param array $tables the list of tables
+     * @return integer|null
      */
     public function actionData(array $tables)
     {
@@ -344,7 +339,7 @@ SQL;
     /**
      * Returns the name of the database migration file created
      * @param string $args the schema name
-     * @return string
+     * @return integer
      */
     public function actionSchema($args)
     {
@@ -371,7 +366,6 @@ SQL;
             $generateTables[] = $table->name;
         }
         $this->actionTable($generateTables);
-        // $this->actionData($generateTables);
         return self::EXIT_CODE_NORMAL;
 
     }

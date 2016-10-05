@@ -1,0 +1,15 @@
+checks:
+    php:
+        code_rating: true
+filter: {}
+coding_style:
+    php:
+        braces:
+            classes_functions:
+                class: end-of-line
+                function: end-of-line
+                closure: end-of-line
+            if:
+                opening: end-of-line
+                else_on_new_line: true
+

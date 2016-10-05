@@ -34,6 +34,7 @@ trait Formatter
     public function prepareInsert($rows, $columns)
     {
 
+        
         return '$this->batchInsert("{{%test}}", ' . $rows . ', ' . $columns . ');';
     }
 
