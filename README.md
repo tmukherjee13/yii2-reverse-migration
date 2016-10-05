@@ -7,8 +7,8 @@ Yii2 Reverse Migration
 [![Total Downloads](https://poser.pugx.org/tmukherjee13/yii2-reverse-migration/downloads)](https://packagist.org/packages/tmukherjee13/yii2-reverse-migration)
 [![Monthly Downloads](https://poser.pugx.org/tmukherjee13/yii2-reverse-migration/d/monthly)](https://packagist.org/packages/tmukherjee13/yii2-reverse-migration)
 [![Daily Downloads](https://poser.pugx.org/tmukherjee13/yii2-reverse-migration/d/daily)](https://packagist.org/packages/tmukherjee13/yii2-reverse-migration)
-[![Scrutinizer Build](https://img.shields.io/scrutinizer/build/g/filp/whoops.svg?maxAge=2592000)](https://scrutinizer-ci.com/g/tmukherjee13/testcs/build-status/master)
-[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/tmukherjee13/testcs/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/tmukherjee13/testcs/?branch=master)
+[![Scrutinizer Build](https://img.shields.io/scrutinizer/build/g/filp/whoops.svg?maxAge=2592000)](https://scrutinizer-ci.com/g/tmukherjee13/yii2-reverse-migration/build-status/master)
+[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/tmukherjee13/yii2-reverse-migration/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/tmukherjee13/yii2-reverse-migration/?branch=master)
 
 Generate working migration classes from existing Database
 
