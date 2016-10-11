@@ -286,7 +286,7 @@ SQL;
                 $table              = $args;
                 $this->class        = 'insert_data_into_' . $table;
                 $this->table        = $table;
-                $this->templateFile = '@tmukherjee13/migration/views/dataTemplate.php';
+                $this->templateFile = \tmukherjee13\migration\Configurator::getTemplate(\tmukherjee13\migration\Configurator::TYPE_DATA);
 
                 $columns = $this->db->getTableSchema($table);
                 $prefix  = $this->db->tablePrefix;

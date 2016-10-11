@@ -14,12 +14,13 @@
     },
     "autoload": {
         "psr-4": {
-            "tmukherjee13\\migration\\": ""
+            "tmukherjee13\\migration\\": "src/"
         }
+        
     },
     "repositories":[
     {
-        "type": "git",
+        "type": "vcs",
         "url": "https://github.com/tmukherjee13/yii2-reverse-migration.git"
     }
 ]

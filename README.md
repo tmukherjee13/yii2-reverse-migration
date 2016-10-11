@@ -49,7 +49,7 @@ return [
     'controllerMap' => [
         'migration' => [
             'class' => 'tmukherjee13\migration\console\controllers\MigrationController',
-            'templateFile' => '@tmukherjee13/migration/views/template.php',
+            'templateFile' => \tmukherjee13\migration\Configurator::getTemplate(\tmukherjee13\migration\Configurator::TYPE_CLASS),
         ],
     ],
     ...
