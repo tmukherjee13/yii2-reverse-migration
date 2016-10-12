@@ -14,9 +14,19 @@
     },
     "autoload": {
         "psr-4": {
-            "tmukherjee13\\migration\\": "src/"
+            "tmukherjee13\\migration\\": "src"
         }
         
+    },
+     "extra": {
+        "bootstrap": "tmukherjee13\\migration\\Bootstrap",
+        "asset-installer-paths": {
+            "npm-asset-library": "vendor/npm",
+            "bower-asset-library": "vendor/bower"
+        },
+        "branch-alias": {
+            "dev-master": "develop"
+        }
     },
     "repositories":[
     {

@@ -38,7 +38,7 @@ class Generator extends \yii\gii\Generator
      */
     public function getName()
     {
-        return 'Reverse Migration Generator';
+        return 'Reverse Migration';
     }
 
     /**
@@ -142,21 +142,21 @@ class Generator extends \yii\gii\Generator
      */
     public function generate()
     {
-        $files = [];
+        // $files = [];
 
-        $files[] = new CodeFile(
-            $this->getControllerFile(),
-            $this->render('controller.php')
-        );
+        // $files[] = new CodeFile(
+        //     $this->getControllerFile(),
+        //     $this->render('controller.php')
+        // );
 
-        foreach ($this->getActionIDs() as $action) {
-            $files[] = new CodeFile(
-                $this->getViewFile($action),
-                $this->render('view.php', ['action' => $action])
-            );
-        }
+        // foreach ($this->getActionIDs() as $action) {
+        //     $files[] = new CodeFile(
+        //         $this->getViewFile($action),
+        //         $this->render('view.php', ['action' => $action])
+        //     );
+        // }
 
-        return $files;
+        // return $files;
     }
 
     /**
