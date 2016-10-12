@@ -15,6 +15,16 @@ use yii\helpers\StringHelper;
 
 class Generator extends \yii\gii\Generator
 {
+
+    const RELATIONS_NONE = 'none';
+    const RELATIONS_ALL = 'all';
+    const RELATIONS_ALL_INVERSE = 'all-inverse';
+
+     public $db = 'db';
+
+     public $tableName;
+
+     public $generateRelations = self::RELATIONS_ALL;
     /**
      * @var string the controller class name
      */
@@ -23,14 +33,6 @@ class Generator extends \yii\gii\Generator
      * @var string the controller's view path
      */
     public $viewPath;
-    /**
-     * @var string the base class of the controller
-     */
-    public $baseClass = 'yii\web\Controller';
-    /**
-     * @var string list of action IDs separated by commas or spaces
-     */
-    public $actions = 'index';
 
 
     /**
@@ -46,8 +48,7 @@ class Generator extends \yii\gii\Generator
      */
     public function getDescription()
     {
-        return 'This generator helps you to quickly generate a new controller class with
-            one or several controller actions and their corresponding views.';
+        return 'This generator helps you to quickly generate migration based on your existing schema.';
     }
 
     /**
@@ -56,27 +57,36 @@ class Generator extends \yii\gii\Generator
     public function rules()
     {
         return array_merge(parent::rules(), [
-            [['controllerClass', 'actions', 'baseClass'], 'filter', 'filter' => 'trim'],
-            [['controllerClass', 'baseClass'], 'required'],
-            ['controllerClass', 'match', 'pattern' => '/^[\w\\\\]*Controller$/', 'message' => 'Only word characters and backslashes are allowed, and the class name must end with "Controller".'],
-            ['controllerClass', 'validateNewClass'],
-            ['baseClass', 'match', 'pattern' => '/^[\w\\\\]*$/', 'message' => 'Only word characters and backslashes are allowed.'],
-            ['actions', 'match', 'pattern' => '/^[a-z][a-z0-9\\-,\\s]*$/', 'message' => 'Only a-z, 0-9, dashes (-), spaces and commas are allowed.'],
-            ['viewPath', 'safe'],
+            [['tableName'], 'filter', 'filter' => 'trim'],
+            [['tableName'], 'required'],
+            // ['controllerClass', 'match', 'pattern' => '/^[\w\\\\]*Controller$/', 'message' => 'Only word characters and backslashes are allowed, and the class name must end with "Controller".'],
+            // ['controllerClass', 'validateNewClass'],
+            // ['baseClass', 'match', 'pattern' => '/^[\w\\\\]*$/', 'message' => 'Only word characters and backslashes are allowed.'],
+            // ['actions', 'match', 'pattern' => '/^[a-z][a-z0-9\\-,\\s]*$/', 'message' => 'Only a-z, 0-9, dashes (-), spaces and commas are allowed.'],
+            // ['viewPath', 'safe'],
         ]);
     }
 
-    /**
+   /**
      * @inheritdoc
      */
     public function attributeLabels()
     {
-        return [
+        return array_merge(parent::attributeLabels(), [
+            'ns' => 'Namespace',
+            'db' => 'Database Connection ID',
+            'tableName' => 'Table Name',
+            'modelClass' => 'Model Class Name',
             'baseClass' => 'Base Class',
-            'controllerClass' => 'Controller Class',
-            'viewPath' => 'View Path',
-            'actions' => 'Action IDs',
-        ];
+            'generateRelations' => 'Generate Relations',
+            'generateRelationsFromCurrentSchema' => 'Generate Relations from Current Schema',
+            'generateLabelsFromComments' => 'Generate Labels from DB Comments',
+            'generateQuery' => 'Generate ActiveQuery',
+            'queryNs' => 'ActiveQuery Namespace',
+            'queryClass' => 'ActiveQuery Class',
+            'queryBaseClass' => 'ActiveQuery Base Class',
+            'useSchemaName' => 'Use Schema Name',
+        ]);
     }
 
     /**
@@ -85,8 +95,7 @@ class Generator extends \yii\gii\Generator
     public function requiredTemplates()
     {
         return [
-            'controller.php',
-            'view.php',
+            'template.php',
         ];
     }
 
@@ -95,7 +104,25 @@ class Generator extends \yii\gii\Generator
      */
     public function stickyAttributes()
     {
-        return ['baseClass'];
+        return [];
+    }
+
+    /**
+     * Returns the `tablePrefix` property of the DB connection as specified
+     *
+     * @return string
+     * @since 2.0.5
+     * @see getDbConnection
+     */
+    public function getTablePrefix()
+    {
+        $db = $this->getDbConnection();
+        if ($db !== null) {
+            return 'lc_';
+            return $db->tablePrefix;
+        } else {
+            return '';
+        }
     }
 
     /**
@@ -126,13 +153,13 @@ class Generator extends \yii\gii\Generator
      */
     public function successMessage()
     {
-        $actions = $this->getActionIDs();
-        if (in_array('index', $actions)) {
-            $route = $this->getControllerID() . '/index';
-        } else {
-            $route = $this->getControllerID() . '/' . reset($actions);
-        }
-        $link = Html::a('try it now', Yii::$app->getUrlManager()->createUrl($route), ['target' => '_blank']);
+        // $actions = $this->getActionIDs();
+        // if (in_array('index', $actions)) {
+        //     $route = $this->getControllerID() . '/index';
+        // } else {
+        //     $route = $this->getControllerID() . '/' . reset($actions);
+        // }
+        $link = Html::a('try it now', Yii::$app->getUrlManager()->createUrl('migration'), ['target' => '_blank']);
 
         return "The controller has been generated successfully. You may $link.";
     }
@@ -142,21 +169,16 @@ class Generator extends \yii\gii\Generator
      */
     public function generate()
     {
-        // $files = [];
 
-        // $files[] = new CodeFile(
-        //     $this->getControllerFile(),
-        //     $this->render('controller.php')
-        // );
+        
+        $files = [];
+        
+        $files[] = new CodeFile(
+            $this->getControllerFile(),
+            $this->render('template.php')
+        );
 
-        // foreach ($this->getActionIDs() as $action) {
-        //     $files[] = new CodeFile(
-        //         $this->getViewFile($action),
-        //         $this->render('view.php', ['action' => $action])
-        //     );
-        // }
-
-        // return $files;
+        return $files;
     }
 
     /**
@@ -176,7 +198,8 @@ class Generator extends \yii\gii\Generator
      */
     public function getControllerFile()
     {
-        return Yii::getAlias('@' . str_replace('\\', '/', $this->controllerClass)) . '.php';
+        return Yii::getAlias('@console').'/migrations/create_table_test_migration';
+        // return Yii::getAlias('@' . str_replace('\\', '/', $this->controllerClass)) . '.php';
     }
 
     /**
@@ -209,4 +232,77 @@ class Generator extends \yii\gii\Generator
         $name = StringHelper::basename($this->controllerClass);
         return ltrim(substr($this->controllerClass, 0, - (strlen($name) + 1)), '\\');
     }
+
+    /**
+     * @return Connection the DB connection as specified by [[db]].
+     */
+    protected function getDbConnection()
+    {
+        return Yii::$app->get($this->db, false);
+    }
+
+
+    /**
+     * @return array the generated relation declarations
+     */
+    protected function generateRelations()
+    {
+         return [];
+        if ($this->generateRelations === self::RELATIONS_NONE) {
+            return [];
+        }
+
+        $db = $this->getDbConnection();
+        $relations = [];
+        $schemaNames = $this->getSchemaNames();
+        foreach ($schemaNames as $schemaName) {
+            foreach ($db->getSchema()->getTableSchemas($schemaName) as $table) {
+                $className = $this->generateClassName($table->fullName);
+                foreach ($table->foreignKeys as $refs) {
+                    $refTable = $refs[0];
+                    $refTableSchema = $db->getTableSchema($refTable);
+                    if ($refTableSchema === null) {
+                        // Foreign key could point to non-existing table: https://github.com/yiisoft/yii2-gii/issues/34
+                        continue;
+                    }
+                    unset($refs[0]);
+                    $fks = array_keys($refs);
+                    $refClassName = $this->generateClassName($refTable);
+
+                    // Add relation for this table
+                    $link = $this->generateRelationLink(array_flip($refs));
+                    $relationName = $this->generateRelationName($relations, $table, $fks[0], false);
+                    $relations[$table->fullName][$relationName] = [
+                        "return \$this->hasOne($refClassName::className(), $link);",
+                        $refClassName,
+                        false,
+                    ];
+
+                    // Add relation for the referenced table
+                    $hasMany = $this->isHasManyRelation($table, $fks);
+                    $link = $this->generateRelationLink($refs);
+                    $relationName = $this->generateRelationName($relations, $refTableSchema, $className, $hasMany);
+                    $relations[$refTableSchema->fullName][$relationName] = [
+                        "return \$this->" . ($hasMany ? 'hasMany' : 'hasOne') . "($className::className(), $link);",
+                        $className,
+                        $hasMany,
+                    ];
+                }
+
+                if (($junctionFks = $this->checkJunctionTable($table)) === false) {
+                    continue;
+                }
+
+                $relations = $this->generateManyManyRelations($table, $junctionFks, $relations);
+            }
+        }
+
+        if ($this->generateRelations === self::RELATIONS_ALL_INVERSE) {
+            return $this->addInverseRelations($relations);
+        }
+
+        return $relations;
+    }
+
+
 }
