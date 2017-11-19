@@ -2,14 +2,15 @@
 namespace tmukherjee13\migration\console\controllers;
 
 use Yii;
-use yii\console\controllers\BaseMigrateController;
+use yii\console\controllers\MigrateController;
 use yii\console\Exception;
 use yii\db\Connection;
 use yii\db\Query;
+use yii\helpers\ArrayHelper;
 use yii\helpers\Console;
 use yii\helpers\FileHelper;
 
-class MigrationController extends BaseMigrateController
+class MigrationController extends MigrateController
 {
     use \tmukherjee13\migration\console\components\Formatter;
 
@@ -44,7 +45,7 @@ class MigrationController extends BaseMigrateController
     /**
      * @var string table columns
      */
-    protected $fields = "";
+    public $fields = "";
 
     /**
      * @var string file name
