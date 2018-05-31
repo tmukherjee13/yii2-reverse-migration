@@ -184,6 +184,10 @@ trait Formatter
             $decorator[] = "defaultValue({$col->defaultValue})";
         }
 
+        if (!empty($col->comment)) {
+            $decorator[] = "comment(\"{$col->comment}\")";
+        }
+
         return $decorator;
     }
 
