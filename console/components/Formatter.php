@@ -29,7 +29,7 @@ trait Formatter
     protected static $rows = '';
 
     /** @var array conflicting column types */
-    protected static $colTypes = ['smallint'];
+    protected static $colTypes = ['tinyint', 'smallint'];
 
 
 
@@ -128,7 +128,7 @@ trait Formatter
         if ($col->isPrimaryKey && $col->autoIncrement) {
             return 'pk';
         }
-        $result = $this->modifyColType($col->dbType);
+        $result = $col->dbType;
 
         if (!$col->allowNull) {
             $result .= ' NOT NULL';
@@ -173,7 +173,7 @@ trait Formatter
         if ($col->isPrimaryKey && $col->autoIncrement) {
             $decorator[] = 'primaryKey';
         } elseif (in_array($col->type, self::$colTypes)) {
-            $decorator[] = "{$col->phpType}";
+            $decorator[] = "{$this->modifyColType($col->dbType)}";
         } elseif ($col->type == 'decimal') {
             $decorator[] = "{$col->dbType}";
         } else {
