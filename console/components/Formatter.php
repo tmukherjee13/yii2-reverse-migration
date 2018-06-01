@@ -128,7 +128,7 @@ trait Formatter
         if ($col->isPrimaryKey && $col->autoIncrement) {
             return 'pk';
         }
-        $result = $col->dbType;
+        $result = $this->modifyColType($col->dbType);
 
         if (!$col->allowNull) {
             $result .= ' NOT NULL';
@@ -143,6 +143,19 @@ trait Formatter
             $result .= ' DEFAULT NULL';
         }
         return $result;
+    }
+
+    /**
+     * Заменяет некоторые типы данных
+     *
+     * @param string $dbType
+     *
+     * @return string
+     */
+    public function modifyColType(string $dbType): string
+    {
+        $dbType = mb_ereg_replace('tinyint', 'tinyInteger', $dbType);
+        return $dbType;
     }
 
     /**
