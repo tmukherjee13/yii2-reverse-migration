@@ -390,6 +390,9 @@ SQL;
 
     public function prepareFile($data)
     {
+        if ($this->useDataMigrationFolder) {
+            FileHelper::createDirectory($this->migrationPath . DIRECTORY_SEPARATOR . $this->dataMigrationFolder);
+        }
         $file = $this->migrationPath . DIRECTORY_SEPARATOR . ($this->useDataMigrationFolder ? $this->dataMigrationFolder . DIRECTORY_SEPARATOR : null) . $this->getFileName() . '.php';
         try {
 
