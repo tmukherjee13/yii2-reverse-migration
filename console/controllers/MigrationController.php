@@ -325,7 +325,7 @@ SQL;
 
                         $this->prepareFile(['columns' => $pcolumns, 'rows' => $prows]);
 
-                        return self::EXIT_CODE_NORMAL;
+                        //return self::EXIT_CODE_NORMAL;
 
                     }
                     // return self::EXIT_CODE_ERROR;
