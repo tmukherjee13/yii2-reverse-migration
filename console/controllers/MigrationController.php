@@ -29,6 +29,16 @@ class MigrationController extends MigrateController
      */
     public $migrationPath = "@app/migrations";
 
+    /**
+     * @var string путь к данным
+     */
+    public $dataMigrationFolder = 'data';
+
+    /**
+     * @var bool использовать путь к данным
+     */
+    public $useDataMigrationFolder = false;
+
     /** @var string template file to use for generation */
     public $templateFile = "@tmukherjee13/migration";
 
@@ -380,7 +390,7 @@ SQL;
 
     public function prepareFile($data)
     {
-        $file = $this->migrationPath . DIRECTORY_SEPARATOR . $this->getFileName() . '.php';
+        $file = $this->migrationPath . DIRECTORY_SEPARATOR . ($this->useDataMigrationFolder ? $this->dataMigrationFolder . DIRECTORY_SEPARATOR : null) . $this->getFileName() . '.php';
         try {
 
             $data['table']     = $this->table;
