@@ -200,6 +200,18 @@ SQL;
     }
 
     /**
+     * Up data
+     *
+     * @param int $limit
+     * @return int
+     */
+    public function actionUpData($limit = 0)
+    {
+        $this->migrationPath .= DIRECTORY_SEPARATOR . $this->dataMigrationFolder;
+        return parent::actionUp($limit);
+    }
+
+    /**
      * Creates migration based on table
      * @method actionTable
      * @param  array       $tables Name of the table to create migration
