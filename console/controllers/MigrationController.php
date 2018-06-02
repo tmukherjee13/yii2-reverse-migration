@@ -37,7 +37,7 @@ class MigrationController extends MigrateController
     /**
      * @var bool использовать путь к данным
      */
-    public $useDataMigrationFolder = false;
+    public $useDataMigrationFolder = true;
 
     /** @var string template file to use for generation */
     public $templateFile = "@tmukherjee13/migration";
@@ -334,13 +334,11 @@ SQL;
                         $prows    = $this->prepareData($prepared_data);
 
                         $this->prepareFile(['columns' => $pcolumns, 'rows' => $prows]);
-
-                        //return self::EXIT_CODE_NORMAL;
-
                     }
                     // return self::EXIT_CODE_ERROR;
                 }
             }
+            return self::EXIT_CODE_NORMAL;
         }
     }
 
