@@ -155,6 +155,7 @@ trait Formatter
     public function modifyColType(string $dbType): string
     {
         $dbType = mb_ereg_replace('tinyint', 'tinyInteger', $dbType);
+        $dbType = mb_ereg_replace('smallint', 'smallInteger', $dbType);
         return $dbType;
     }
 
