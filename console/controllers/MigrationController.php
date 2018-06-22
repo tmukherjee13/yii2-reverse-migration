@@ -345,6 +345,11 @@ SQL;
                         $pcolumns = $this->prepareColumns($pcolumns);
                         $prows    = $this->prepareData($prepared_data);
 
+                        if ($this->useDataMigrationFolder) {
+                            $path = $this->migrationPath . DIRECTORY_SEPARATOR . $this->dataMigrationFolder;
+                            FileHelper::createDirectory($path);
+                            $this->migrationPath = $path;
+                        }
                         $this->prepareFile(['columns' => $pcolumns, 'rows' => $prows]);
                     }
                     // return self::EXIT_CODE_ERROR;
@@ -400,10 +405,7 @@ SQL;
 
     public function prepareFile($data)
     {
-        if ($this->useDataMigrationFolder) {
-            FileHelper::createDirectory($this->migrationPath . DIRECTORY_SEPARATOR . $this->dataMigrationFolder);
-        }
-        $file = $this->migrationPath . DIRECTORY_SEPARATOR . ($this->useDataMigrationFolder ? $this->dataMigrationFolder . DIRECTORY_SEPARATOR : null) . $this->getFileName() . '.php';
+        $file = $this->migrationPath . DIRECTORY_SEPARATOR . $this->getFileName() . '.php';
         try {
 
             $data['table']     = $this->table;
