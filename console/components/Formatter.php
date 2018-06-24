@@ -29,7 +29,7 @@ trait Formatter
     protected static $rows = '';
 
     /** @var array conflicting column types */
-    protected static $colTypes = ['smallint'];
+    protected static $colTypes = ['tinyint', 'smallint'];
 
 
 
@@ -146,6 +146,20 @@ trait Formatter
     }
 
     /**
+     * Заменяет некоторые типы данных
+     *
+     * @param string $dbType
+     *
+     * @return string
+     */
+    public function modifyColType(string $dbType): string
+    {
+        $dbType = mb_ereg_replace('tinyint', 'tinyInteger', $dbType);
+        $dbType = mb_ereg_replace('smallint', 'smallInteger', $dbType);
+        return $dbType;
+    }
+
+    /**
      * Formats the given column with appropriate decorators.
      *
      * @method formatCol
@@ -160,7 +174,7 @@ trait Formatter
         if ($col->isPrimaryKey && $col->autoIncrement) {
             $decorator[] = 'primaryKey';
         } elseif (in_array($col->type, self::$colTypes)) {
-            $decorator[] = "{$col->phpType}";
+            $decorator[] = "{$this->modifyColType($col->dbType)}";
         } elseif ($col->type == 'decimal') {
             $decorator[] = "{$col->dbType}";
         } else {
@@ -182,6 +196,10 @@ trait Formatter
         }
         if (!empty($col->defaultValue)) {
             $decorator[] = "defaultValue({$col->defaultValue})";
+        }
+
+        if (!empty($col->comment)) {
+            $decorator[] = "comment(\"{$col->comment}\")";
         }
 
         return $decorator;

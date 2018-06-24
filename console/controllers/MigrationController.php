@@ -29,6 +29,16 @@ class MigrationController extends MigrateController
      */
     public $migrationPath = "@app/migrations";
 
+    /**
+     * @var string путь к данным
+     */
+    public $dataMigrationFolder = 'data';
+
+    /**
+     * @var bool использовать путь к данным
+     */
+    public $useDataMigrationFolder = true;
+
     /** @var string template file to use for generation */
     public $templateFile = "@tmukherjee13/migration";
 
@@ -190,6 +200,18 @@ SQL;
     }
 
     /**
+     * Up data
+     *
+     * @param int $limit
+     * @return int
+     */
+    public function actionUpData($limit = 0)
+    {
+        $this->migrationPath .= DIRECTORY_SEPARATOR . $this->dataMigrationFolder;
+        return parent::actionUp($limit);
+    }
+
+    /**
      * Creates migration based on table
      * @method actionTable
      * @param  array       $tables Name of the table to create migration
@@ -323,14 +345,17 @@ SQL;
                         $pcolumns = $this->prepareColumns($pcolumns);
                         $prows    = $this->prepareData($prepared_data);
 
+                        if ($this->useDataMigrationFolder) {
+                            $path = $this->migrationPath . DIRECTORY_SEPARATOR . $this->dataMigrationFolder;
+                            FileHelper::createDirectory($path);
+                            $this->migrationPath = $path;
+                        }
                         $this->prepareFile(['columns' => $pcolumns, 'rows' => $prows]);
-
-                        return self::EXIT_CODE_NORMAL;
-
                     }
                     // return self::EXIT_CODE_ERROR;
                 }
             }
+            return self::EXIT_CODE_NORMAL;
         }
     }
 
