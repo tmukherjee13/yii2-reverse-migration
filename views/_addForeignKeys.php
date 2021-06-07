@@ -3,14 +3,14 @@
         // creates index for column `<?= $fkData['column'] ?>`
         $this->createIndex(
             '<?= $fk  ?>',
-            '<?= $table ?>',
+            $this->tableName,
             '<?= $fkData['column'] ?>'
         );
 
         // add foreign key for table `<?= $fkData['table'] ?>`
         $this->addForeignKey(
             '<?= $fk ?>',
-            '<?= $table ?>',
+            $this->tableName,
             '<?= $fkData['column'] ?>',
             '{{%<?= $fkData['table'] ?>}}',
             '<?= $fkData['ref_column'] ?>',

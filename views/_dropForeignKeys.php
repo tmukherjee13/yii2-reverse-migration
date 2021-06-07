@@ -1,4 +1,9 @@
-<?php foreach ($foreignKeys as $fk => $fkData): ?>
+<?php
+/**
+ * @var  $fk
+ * @var  $fkData
+ */
+foreach ($foreignKeys as $fk => $fkData): ?>
         // drops foreign key for table `<?= $fkData['table'] ?>`
         $this->dropForeignKey(
             '<?= $fk ?>',
