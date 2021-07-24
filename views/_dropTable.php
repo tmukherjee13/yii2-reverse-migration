@@ -5,9 +5,15 @@
  */
 /* @var $table string the name table */
 /* @var $foreignKeys array the foreign keys */
+/* @var $indexes array the foreign keys */
 
 echo $this->render('_dropForeignKeys', [
     'table' => $table,
     'foreignKeys' => $foreignKeys,
+]);
+
+echo $this->render('_dropIndexes', [
+'table' => $table,
+'indexes' => $indexes,
 ]) ?>
-        $this->dropTable('<?= $table ?>');
+        $this->dropTable($this->tableName);
