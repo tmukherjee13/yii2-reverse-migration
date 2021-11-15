@@ -494,7 +494,7 @@ SQL;
                 return [];
             }
             
-            return $this->filterKeyIndex($rows, $table);
+            return $this->filterKeyIndex($table, $rows);
         } catch (\Exception $e) {
             return;
         }
@@ -506,7 +506,7 @@ SQL;
      *
      * @return array
      */
-    public function filterKeyIndex(array $rows = [], $table)
+    public function filterKeyIndex($table, array $rows = [])
     {
         $return = [];
         foreach ($rows as $row) {
